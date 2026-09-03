@@ -37,6 +37,9 @@ public class Booking {
     @Column(name = "one_time_code", updatable = false, nullable = false)
     private Integer oneTimeCode;
 
+    @Column(name = "fare", updatable = false, nullable = false)
+    private Double fare;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "passenger_id", nullable = false)
     private Employee passenger;
