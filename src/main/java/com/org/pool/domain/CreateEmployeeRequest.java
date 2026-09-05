@@ -22,7 +22,7 @@ public class CreateEmployeeRequest {
     private String mobileNumber;
     private String manager;
     private String division;
-    private RoleEnum role;
+    private List<RoleEnum> role;
     private List<CreateVehicleRequest> vehicle;
 
 }

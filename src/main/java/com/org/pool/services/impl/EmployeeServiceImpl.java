@@ -48,7 +48,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             employeeToCreate.setDivision(employee.getDivision());
         }
 
-        if(employee.getRole() == RoleEnum.DRIVER) {
+        if(employee.getRole().contains(RoleEnum.DRIVER)) {
 
             List<Vehicle> vehiclesToCreate = employee.getVehicle().stream().map( vehicle -> {
                 return Vehicle.builder()

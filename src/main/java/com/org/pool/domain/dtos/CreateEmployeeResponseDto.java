@@ -19,7 +19,7 @@ public class CreateEmployeeResponseDto {
     private String name;
     private String address;
     private String mobileNumber;
-    private RoleEnum role;
+    private List<RoleEnum> role;
     private List<CreateVehicleResponseDto> vehicle;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

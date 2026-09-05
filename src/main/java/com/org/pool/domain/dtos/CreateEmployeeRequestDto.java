@@ -39,7 +39,7 @@ public class CreateEmployeeRequestDto {
     private String division;
 
     @NotNull(message = "Role should be selected")
-    private RoleEnum role;
+    private List<RoleEnum> role;
 
     @Valid
     private List<CreateVehicleRequestDto> vehicle;
