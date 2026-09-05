@@ -1,17 +1,19 @@
 package com.org.pool.services.impl;
 
 import com.org.pool.domain.CreateEmployeeRequest;
-import com.org.pool.domain.CreateVehicleRequest;
 import com.org.pool.domain.entities.Employee;
 import com.org.pool.domain.entities.RoleEnum;
 import com.org.pool.domain.entities.User;
 import com.org.pool.domain.entities.Vehicle;
 import com.org.pool.repositories.EmployeeRepository;
 import com.org.pool.services.EmployeeService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeRepository employeeRepository;
 
     @Override
+    @Transactional
     public Employee createEmployee(CreateEmployeeRequest employee) {
 
         Employee.EmployeeBuilder employeeBuilder = Employee.builder();
@@ -62,6 +65,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         return employeeRepository.save(employeeToCreate);
+
+    }
+
+    @Override
+    public Optional<Employee> getEmployeeById(Integer employeeId) {
+
+        return employeeRepository.findById(employeeId);
 
     }
 }
