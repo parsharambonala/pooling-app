@@ -1,4 +1,5 @@
-package com.org.pool.entities;
+package com.org.pool.domain.entities;
+
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,18 +8,22 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Table(
+        name = "bookings",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"ride_id", "passenger_id"})
+        }
+)
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class Ride {
+public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -26,29 +31,22 @@ public class Ride {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "driver_id", updatable = false, nullable = false)
-    private Employee driver;
+    @JoinColumn(name = "ride_id", nullable = false)
+    private Ride ride;
+
+    @Column(name = "one_time_code", updatable = false, nullable = false)
+    private Integer oneTimeCode;
+
+    @Column(name = "fare", updatable = false, nullable = false)
+    private Double fare;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vehicle_id", updatable = false, nullable = false)
-    private Vehicle vehicle;
+    @JoinColumn(name = "passenger_id", nullable = false)
+    private Employee passenger;
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private RideStatusEnum status;
-
-    @Column(name = "pickup_address", nullable = false)
-    private String pickUpAddress;
-
-    @Column(name = "departure_time")
-    private LocalDateTime departureTime;
-
-    @Column(name = "distance_from_destination")
-    private Double distanceFromDestination;
-
-    @Builder.Default
-    @OneToMany(mappedBy = "ride")
-    private List<Booking> bookings = new ArrayList<>();
+    private BookingStatusEnum status;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false, nullable = false)

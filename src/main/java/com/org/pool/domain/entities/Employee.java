@@ -1,4 +1,4 @@
-package com.org.pool.entities;
+package com.org.pool.domain.entities;
 
 
 import jakarta.persistence.*;
@@ -22,7 +22,7 @@ import java.util.List;
 public class Employee {
 
     @Id
-    @Column(name = "employee_id", nullable = false, updatable = false, unique = true)
+    @Column(name = "employee_id", nullable = false, updatable = false)
     private Integer employeeId;
 
     @Column(name = "mail_id", nullable = false, updatable = false, unique = true)
@@ -31,7 +31,7 @@ public class Employee {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "manager", nullable = false)
+    @Column(name = "manager")
     private String manager;
 
     @Column(name = "division")
@@ -48,7 +48,7 @@ public class Employee {
     private boolean active = true;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
     @Builder.Default

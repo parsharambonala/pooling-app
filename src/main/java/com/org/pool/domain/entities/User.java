@@ -1,7 +1,6 @@
-package com.org.pool.entities;
+package com.org.pool.domain.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -11,35 +10,32 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "vehicles")
+@Table(name = "users")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class Vehicle {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "vehicle_type", nullable = false)
+    @Column(name = "password", nullable = false)
+    private String password;
+
+    @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
-    private VehicleTypeEnum vehicleType;
+    private RoleEnum role;
 
-    @Column(name = "vehicle_number", nullable = false, unique = true)
-    private String vehicleNumber;
+    @Builder.Default
+    @Column(name = "is_active", nullable = false)
+    private boolean active=true;
 
-    @Column(name = "vehicle_model")
-    private String vehicleModel;
-
-    @Column(name = "seat_count", nullable = false)
-    private Integer seatCount;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
+    @OneToOne(mappedBy = "user")
     private Employee employee;
 
     @CreatedDate

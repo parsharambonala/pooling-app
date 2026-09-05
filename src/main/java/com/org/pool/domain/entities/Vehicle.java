@@ -1,5 +1,4 @@
-package com.org.pool.entities;
-
+package com.org.pool.domain.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,42 +10,36 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(
-        name = "bookings",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"ride_id", "passenger_id"})
-        }
-)
+@Table(name = "vehicles")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class Booking {
+public class Vehicle {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ride_id", nullable = false)
-    private Ride ride;
-
-    @Column(name = "one_time_code", updatable = false, nullable = false)
-    private Integer oneTimeCode;
-
-    @Column(name = "fare", updatable = false, nullable = false)
-    private Double fare;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "passenger_id", nullable = false)
-    private Employee passenger;
-
-    @Column(name = "status", nullable = false)
+    @Column(name = "vehicle_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private BookingStatusEnum status;
+    private VehicleTypeEnum vehicleType;
+
+    @Column(name = "vehicle_number", nullable = false, unique = true)
+    private String vehicleNumber;
+
+    @Column(name = "vehicle_model")
+    private String vehicleModel;
+
+    @Column(name = "seat_count", nullable = false)
+    private Integer seatCount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id", nullable = false)
+    private Employee employee;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false, nullable = false)
