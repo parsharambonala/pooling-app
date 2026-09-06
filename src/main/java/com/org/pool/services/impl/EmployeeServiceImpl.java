@@ -1,5 +1,6 @@
 package com.org.pool.services.impl;
 
+import com.org.pool.config.SecurityConfig;
 import com.org.pool.domain.CreateEmployeeRequest;
 import com.org.pool.domain.entities.Employee;
 import com.org.pool.domain.entities.RoleEnum;
@@ -9,17 +10,18 @@ import com.org.pool.repositories.EmployeeRepository;
 import com.org.pool.services.EmployeeService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -27,9 +29,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Employee.EmployeeBuilder employeeBuilder = Employee.builder();
 
+        String encryptedPassword = passwordEncoder.encode(employee.getPassword());
+
         User userToCreate = User.builder()
-                .role(employee.getRole())
-                .password(employee.getPassword())
+                .roles(employee.getRoles())
+                .password(encryptedPassword)
                 .build();
 
         Employee employeeToCreate = employeeBuilder.employeeId(employee.getEmployeeId())
@@ -48,7 +52,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             employeeToCreate.setDivision(employee.getDivision());
         }
 
-        if(employee.getRole().contains(RoleEnum.DRIVER)) {
+        if(employee.getRoles().contains(RoleEnum.DRIVER)) {
 
             List<Vehicle> vehiclesToCreate = employee.getVehicle().stream().map( vehicle -> {
                 return Vehicle.builder()

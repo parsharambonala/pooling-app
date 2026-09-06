@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -39,7 +40,7 @@ public class CreateEmployeeRequestDto {
     private String division;
 
     @NotNull(message = "Role should be selected")
-    private List<RoleEnum> role;
+    private Set<RoleEnum> roles;
 
     @Valid
     private List<CreateVehicleRequestDto> vehicle;

@@ -21,13 +21,13 @@ public interface EmployeeMapper {
 
     CreateVehicleRequest fromCreateVehicleRequestDto(CreateEmployeeRequestDto dto);
 
-    @Mapping(source = "user.role", target = "role")
+    @Mapping(source = "user.roles", target = "roles")
     @Mapping(source = "vehicles", target = "vehicle")
     CreateEmployeeResponseDto toCreateEmployeeResponseDto(Employee employee);
 
     CreateVehicleResponseDto toCreateVehicleResponseDto(Vehicle vehicle);
 
-    @Mapping(source = "user.role", target = "role")
+    @Mapping(source = "user.roles", target = "roles")
     @Mapping(source = "vehicles", target = "vehicle")
     GetEmployeeResponseDto toGetEmployeeResponseDto(Employee employee);
 

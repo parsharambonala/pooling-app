@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -22,7 +23,7 @@ public class CreateEmployeeRequest {
     private String mobileNumber;
     private String manager;
     private String division;
-    private List<RoleEnum> role;
+    private Set<RoleEnum> roles;
     private List<CreateVehicleRequest> vehicle;
 
 }

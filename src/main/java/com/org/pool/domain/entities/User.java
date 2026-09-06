@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -28,9 +29,14 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "role", nullable = false)
+    @ElementCollection
+    @CollectionTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id")
+    )
+    @Column(name = "roles", nullable = false)
     @Enumerated(EnumType.STRING)
-    private List<RoleEnum> role;
+    private Set<RoleEnum> roles;
 
     @Builder.Default
     @Column(name = "is_active", nullable = false)

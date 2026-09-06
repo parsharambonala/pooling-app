@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -17,7 +18,7 @@ public class GetEmployeeResponseDto {
     private String name;
     private String address;
     private String mobileNumber;
-    private RoleEnum role;
+    private Set<RoleEnum> roles;
     private List<CreateVehicleResponseDto> vehicle;
 
 }

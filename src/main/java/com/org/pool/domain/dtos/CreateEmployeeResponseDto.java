@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -19,7 +20,7 @@ public class CreateEmployeeResponseDto {
     private String name;
     private String address;
     private String mobileNumber;
-    private List<RoleEnum> role;
+    private Set<RoleEnum> roles;
     private List<CreateVehicleResponseDto> vehicle;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
