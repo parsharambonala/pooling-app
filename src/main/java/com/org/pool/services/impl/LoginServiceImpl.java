@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class LoginServiceImpl implements LoginService {
 
     private final AuthenticationManager authenticationManager;
+    private final JWTService jwtService;
 
     @Override
     public LoginResponseDto login(LoginRequestDto loginRequest) {
@@ -27,7 +28,7 @@ public class LoginServiceImpl implements LoginService {
 
         System.out.println(authentication.getName());
 
-        return new LoginResponseDto("AUTHENTICATED");
+        return new LoginResponseDto(jwtService.generateToken(authentication));
 
     }
 }
