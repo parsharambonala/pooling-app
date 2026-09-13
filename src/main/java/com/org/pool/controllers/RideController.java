@@ -2,21 +2,21 @@ package com.org.pool.controllers;
 
 
 import com.org.pool.domain.CreateRideRequest;
+import com.org.pool.domain.SearchRideRequest;
 import com.org.pool.domain.dtos.CreateRideRequestDto;
 import com.org.pool.domain.dtos.CreateRideResponseDto;
+import com.org.pool.domain.dtos.SearchRideRequestDto;
 import com.org.pool.domain.entities.Ride;
 import com.org.pool.domain.mappers.RideMapper;
 import com.org.pool.services.RideService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "rides")
@@ -39,6 +39,17 @@ public class RideController {
         Ride rideCreated = rideService.createRide(createRideRequest, mailId);
         CreateRideResponseDto newRide = rideMapper.toDto(rideCreated);
         return ResponseEntity.ok(newRide);
+
+    }
+
+    @GetMapping(path = "/search")
+    public ResponseEntity<List<Ride>> searchRides(
+            @Valid @RequestBody SearchRideRequestDto searchRideRequestDto,
+            Authentication authentication
+            ) {
+        SearchRideRequest searchRideRequest = rideMapper.fromDto(searchRideRequestDto);
+        List<Ride> ridesSearched = rideService.searchRides(searchRideRequest);
+        return ResponseEntity.ok(ridesSearched);
 
     }
 

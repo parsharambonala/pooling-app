@@ -6,6 +6,8 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: "poolingforlseg"
+      TZ: "Asia/Kolkata"
+      PGTZ: "Asia/Kolkata"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
