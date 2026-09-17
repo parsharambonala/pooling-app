@@ -5,10 +5,7 @@ import com.org.pool.domain.SearchRideRequest;
 import com.org.pool.domain.dtos.Coordinates;
 import com.org.pool.domain.dtos.RideInfo;
 import com.org.pool.domain.dtos.RouteInfo;
-import com.org.pool.domain.entities.Employee;
-import com.org.pool.domain.entities.Ride;
-import com.org.pool.domain.entities.RideStatusEnum;
-import com.org.pool.domain.entities.Vehicle;
+import com.org.pool.domain.entities.*;
 import com.org.pool.repositories.EmployeeRepository;
 import com.org.pool.repositories.RideRepository;
 import com.org.pool.repositories.VehicleRepository;
@@ -18,6 +15,7 @@ import com.org.pool.util.RideUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 
@@ -101,9 +99,33 @@ public class RideServiceImpl implements RideService {
 
     @Override
     public Ride getRide(UUID rideId) {
-        return rideRepository.findById(rideId).orElseThrow(
+       return rideRepository.findById(rideId).filter( ridee -> ridee.getStatus() != RideStatusEnum.CANCELLED).orElseThrow(
                 () -> new EntityNotFoundException("Ride Not Found")
-        );
+       );
+
+    }
+
+    @Override
+    @Transactional
+    public void deleteRide(UUID rideId, String mailId) throws BadRequestException {
+
+        Ride ride =  getRide(rideId);
+        Employee driver = employeeRepository.findByMailId(mailId);
+
+        if(!ride.getDriver().getName().equals(driver.getName())){
+            throw new BadRequestException("Unauthorized to delete");
+        }
+
+        if(ride.getStatus() != RideStatusEnum.SCHEDULED){
+            throw new IllegalStateException("Cannot cancel the ride now");
+        }
+
+        List<Booking> bookings = ride.getBookings();
+        bookings.forEach(booking ->
+                 booking.setStatus(BookingStatusEnum.CANCELLED)
+                );
+
+        ride.setStatus(RideStatusEnum.CANCELLED);
 
     }
 }

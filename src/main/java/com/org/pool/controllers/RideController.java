@@ -4,11 +4,16 @@ package com.org.pool.controllers;
 import com.org.pool.domain.CreateRideRequest;
 import com.org.pool.domain.SearchRideRequest;
 import com.org.pool.domain.dtos.*;
+import com.org.pool.domain.entities.Employee;
 import com.org.pool.domain.entities.Ride;
 import com.org.pool.domain.mappers.RideMapper;
+import com.org.pool.repositories.EmployeeRepository;
+import com.org.pool.repositories.RideRepository;
 import com.org.pool.services.RideService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -59,6 +64,18 @@ public class RideController {
             ) {
 
         return ResponseEntity.ok(rideService.getRide(rideId));
+
+    }
+
+    @DeleteMapping("/{rideId}")
+    public ResponseEntity<Void> deleteRide(
+            @PathVariable UUID rideId,
+            Authentication authentication
+    ) throws BadRequestException {
+
+        rideService.deleteRide(rideId, authentication.getName());
+
+        return ResponseEntity.noContent().build();
 
     }
 
