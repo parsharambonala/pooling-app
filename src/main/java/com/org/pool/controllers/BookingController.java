@@ -8,9 +8,12 @@ import com.org.pool.domain.entities.Employee;
 import com.org.pool.domain.entities.Ride;
 import com.org.pool.domain.entities.RideStatusEnum;
 import com.org.pool.domain.mappers.BookingMapper;
+import com.org.pool.repositories.BookingRepository;
 import com.org.pool.repositories.EmployeeRepository;
 import com.org.pool.services.BookingService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -27,6 +30,7 @@ public class BookingController {
     private final RideController rideController;
     private final BookingService bookingService;
     private final EmployeeRepository employeeRepository;
+    private final BookingRepository bookingRepository;
     private final BookingMapper bookingMapper;
 
     @PostMapping("/{rideId}/book")
@@ -49,6 +53,26 @@ public class BookingController {
 
         Booking booking = bookingService.createBooking(ride, passenger, requestDto.getPickupAddress(), requestDto.getPickupTime());
         return new ResponseEntity<>(bookingMapper.toDto(booking), HttpStatus.CREATED);
+
+    }
+
+    @DeleteMapping(path = "/{bookingId}/book")
+    public ResponseEntity<Void> deleteBooking(
+            @PathVariable UUID bookingId,
+            Authentication authentication
+    ) throws BadRequestException {
+
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(
+                () -> new EntityNotFoundException("Invalid Booking Id")
+        );
+
+        if( !booking.getPassenger().getMailId().equals(authentication.getName())) {
+            throw new BadRequestException("Not Authorized");
+        }
+
+        bookingService.deleteBooking(bookingId);
+
+        return ResponseEntity.noContent().build();
 
     }
 

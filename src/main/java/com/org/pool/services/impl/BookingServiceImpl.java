@@ -17,6 +17,7 @@ import tools.jackson.databind.JsonNode;
 
 import java.time.LocalDateTime;
 import java.util.Random;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -47,4 +48,9 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.save(bookingToCreate);
 
     }
+
+    public void deleteBooking(UUID bookingId) {
+        bookingRepository.deleteById(bookingId);
+    }
+
 }
