@@ -16,6 +16,7 @@ import com.org.pool.services.OlaMapsService;
 import com.org.pool.services.RideService;
 import com.org.pool.util.RideUtil;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +38,7 @@ public class RideServiceImpl implements RideService {
     private final RideUtil rideUtil;
 
     @Override
+    @Transactional
     public Ride createRide(CreateRideRequest createRideRequest, String mailId) {
 
         Employee employee = employeeRepository.findByMailId(mailId);
@@ -65,7 +68,7 @@ public class RideServiceImpl implements RideService {
         Coordinates passengerCoordinates = olaMapsClient.getCode(pickupAddress);
         List<Ride> relevantRides = getAllRides().stream()
                .filter(ride -> ride.getDepartureTime().toLocalDate().equals(passengerPickupTime.toLocalDate())
-                       && ride.getStatus() == RideStatusEnum.SCHEDULED)
+                       && ride.getStatus() == RideStatusEnum.SCHEDULED && ride.getBookings().size() < ride.getVehicle().getSeatCount())
                .toList();
 
         List<RideInfo> ridesToReturn = new ArrayList<>();
@@ -94,5 +97,13 @@ public class RideServiceImpl implements RideService {
         }
 
        return ridesToReturn;
+    }
+
+    @Override
+    public Ride getRide(UUID rideId) {
+        return rideRepository.findById(rideId).orElseThrow(
+                () -> new EntityNotFoundException("Ride Not Found")
+        );
+
     }
 }

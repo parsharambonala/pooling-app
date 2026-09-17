@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "rides")
@@ -49,6 +50,15 @@ public class RideController {
         List<RideInfo> ridesSearched = rideService.searchRides(searchRideRequest);
         List<SearchRideResponseDto> searchRideResponseDtos = rideMapper.toDto(ridesSearched);
         return ResponseEntity.ok(searchRideResponseDtos);
+
+    }
+
+    @GetMapping(path = "/{rideId}")
+    public ResponseEntity<Ride> getRide(
+            @PathVariable UUID rideId
+            ) {
+
+        return ResponseEntity.ok(rideService.getRide(rideId));
 
     }
 
