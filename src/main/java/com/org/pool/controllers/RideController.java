@@ -3,9 +3,7 @@ package com.org.pool.controllers;
 
 import com.org.pool.domain.CreateRideRequest;
 import com.org.pool.domain.SearchRideRequest;
-import com.org.pool.domain.dtos.CreateRideRequestDto;
-import com.org.pool.domain.dtos.CreateRideResponseDto;
-import com.org.pool.domain.dtos.SearchRideRequestDto;
+import com.org.pool.domain.dtos.*;
 import com.org.pool.domain.entities.Ride;
 import com.org.pool.domain.mappers.RideMapper;
 import com.org.pool.services.RideService;
@@ -43,13 +41,14 @@ public class RideController {
     }
 
     @GetMapping(path = "/search")
-    public ResponseEntity<List<Ride>> searchRides(
+    public ResponseEntity<List<SearchRideResponseDto>> searchRides(
             @Valid @RequestBody SearchRideRequestDto searchRideRequestDto,
             Authentication authentication
             ) {
         SearchRideRequest searchRideRequest = rideMapper.fromDto(searchRideRequestDto);
-        List<Ride> ridesSearched = rideService.searchRides(searchRideRequest);
-        return ResponseEntity.ok(ridesSearched);
+        List<RideInfo> ridesSearched = rideService.searchRides(searchRideRequest);
+        List<SearchRideResponseDto> searchRideResponseDtos = rideMapper.toDto(ridesSearched);
+        return ResponseEntity.ok(searchRideResponseDtos);
 
     }
 
