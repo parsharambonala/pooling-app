@@ -28,9 +28,12 @@ public class NotificationServiceImpl implements NotificationService {
             throw new EntityNotFoundException("No employee found with email "+ email);
         }
 
-        return notificationRepository.findByPassenger(employee)
-                .stream().peek( notification ->
-                        notification.setRead(true)).toList();
+        List<Notification> notifications = notificationRepository.findByPassenger(employee);
+
+         notifications.forEach(notification -> notification.setRead(true));
+
+         return notifications;
+
 
     }
 }

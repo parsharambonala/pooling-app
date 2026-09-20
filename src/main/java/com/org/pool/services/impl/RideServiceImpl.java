@@ -38,6 +38,7 @@ public class RideServiceImpl implements RideService {
     private final VehicleRepository vehicleRepository;
     private final OlaMapsService olaMapsClient;
     private final RideUtil rideUtil;
+    private final NotificationProducer notificationProducer;
 
 
     @Override
@@ -133,8 +134,6 @@ public class RideServiceImpl implements RideService {
 
         affectedPassengers = bookings.stream().map(booking ->
                 booking.getPassenger().getEmployeeId()).toList();
-
-        NotificationProducer notificationProducer = new NotificationProducer("cancel-ride");
 
         RideCancellationNotificationEvent rideNotificationEvent = new RideCancellationNotificationEvent();
         rideNotificationEvent.setRideId(ride.getId());
