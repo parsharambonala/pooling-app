@@ -63,6 +63,10 @@ public class Employee {
     @OneToMany(mappedBy = "passenger")
     private List<Booking> bookings = new ArrayList<>();
 
+    @OneToMany(mappedBy = "passenger", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Notification> notifications = new ArrayList<>();
+
     @CreatedDate
     @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;

@@ -6,6 +6,10 @@ import com.org.pool.domain.dtos.Coordinates;
 import com.org.pool.domain.dtos.RideInfo;
 import com.org.pool.domain.dtos.RouteInfo;
 import com.org.pool.domain.entities.*;
+import com.org.pool.notification.entities.RideCancellationNotificationEvent;
+import com.org.pool.notification.entities.RideNotificationEvent;
+import com.org.pool.notification.service.NotificationConsumer;
+import com.org.pool.notification.service.NotificationProducer;
 import com.org.pool.repositories.EmployeeRepository;
 import com.org.pool.repositories.RideRepository;
 import com.org.pool.repositories.VehicleRepository;
@@ -34,6 +38,7 @@ public class RideServiceImpl implements RideService {
     private final VehicleRepository vehicleRepository;
     private final OlaMapsService olaMapsClient;
     private final RideUtil rideUtil;
+
 
     @Override
     @Transactional
@@ -120,10 +125,22 @@ public class RideServiceImpl implements RideService {
             throw new IllegalStateException("Cannot cancel the ride now");
         }
 
+        List<Integer> affectedPassengers = new ArrayList<>();
         List<Booking> bookings = ride.getBookings();
+
         bookings.forEach(booking ->
-                 booking.setStatus(BookingStatusEnum.CANCELLED)
-                );
+                        booking.setStatus(BookingStatusEnum.CANCELLED));
+
+        affectedPassengers = bookings.stream().map(booking ->
+                booking.getPassenger().getEmployeeId()).toList();
+
+        NotificationProducer notificationProducer = new NotificationProducer("cancel-ride");
+
+        RideCancellationNotificationEvent rideNotificationEvent = new RideCancellationNotificationEvent();
+        rideNotificationEvent.setRideId(ride.getId());
+        rideNotificationEvent.setDriverId(ride.getDriver().getEmployeeId());
+        rideNotificationEvent.setAffectedPassengerIds(affectedPassengers);
+        notificationProducer.sendNotification(rideNotificationEvent);
 
         ride.setStatus(RideStatusEnum.CANCELLED);
 
