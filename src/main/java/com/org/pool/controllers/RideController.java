@@ -4,6 +4,8 @@ package com.org.pool.controllers;
 import com.org.pool.domain.CreateRideRequest;
 import com.org.pool.domain.SearchRideRequest;
 import com.org.pool.domain.dtos.*;
+import com.org.pool.domain.entities.Booking;
+import com.org.pool.domain.entities.BookingStatusEnum;
 import com.org.pool.domain.entities.Employee;
 import com.org.pool.domain.entities.Ride;
 import com.org.pool.domain.mappers.RideMapper;
@@ -75,6 +77,36 @@ public class RideController {
 
         rideService.deleteRide(rideId, authentication.getName());
 
+        return ResponseEntity.noContent().build();
+
+    }
+
+    @GetMapping("/{rideId}/booking-requests")
+    @PreAuthorize("hasRole('DRIVER')")
+    public ResponseEntity<List<GetBookingRequestsDto>> getBookingRequests(
+            @PathVariable UUID rideId,
+            Authentication authentication
+    ) throws IllegalAccessException {
+
+        String mail = authentication.getName();
+        List<Booking> bookingRequests = rideService.getBookingRequests(rideId,mail);
+
+        return ResponseEntity.ok(rideMapper.toBookingRequestDto(bookingRequests));
+
+    }
+
+    @PatchMapping("/{rideId}/booking-requests/{bookingId}")
+    @PreAuthorize("hasRole('DRIVER')")
+    public ResponseEntity<Void> changeBookingStatus(
+            @PathVariable UUID rideId,
+            @PathVariable UUID bookingId,
+            Authentication authentication,
+            @RequestBody BookingStatusEnum status
+    ) throws BadRequestException, IllegalAccessException {
+
+        String mail = authentication.getName();
+
+        rideService.changeBookingStatus(rideId, bookingId, mail, status);
         return ResponseEntity.noContent().build();
 
     }

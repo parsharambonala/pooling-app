@@ -8,6 +8,7 @@ import com.org.pool.domain.entities.BookingStatusEnum;
 import com.org.pool.domain.entities.Employee;
 import com.org.pool.domain.entities.Ride;
 import com.org.pool.repositories.BookingRepository;
+import com.org.pool.repositories.RideRepository;
 import com.org.pool.services.BookingService;
 import com.org.pool.services.OlaMapsService;
 import com.org.pool.util.RideUtil;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -42,7 +44,7 @@ public class BookingServiceImpl implements BookingService {
                 .distanceFromDestination(routeInfo.distanceMeters())
                 .pickupAddress(pickupAddress)
                 .passenger(passenger)
-                .status(BookingStatusEnum.COMPLETED)
+                .status(BookingStatusEnum.PENDING)
                 .build();
 
         return bookingRepository.save(bookingToCreate);

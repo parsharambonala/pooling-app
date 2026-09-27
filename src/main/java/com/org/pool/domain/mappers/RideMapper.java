@@ -3,6 +3,7 @@ package com.org.pool.domain.mappers;
 import com.org.pool.domain.CreateRideRequest;
 import com.org.pool.domain.SearchRideRequest;
 import com.org.pool.domain.dtos.*;
+import com.org.pool.domain.entities.Booking;
 import com.org.pool.domain.entities.Ride;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -30,5 +31,10 @@ public interface RideMapper {
     SearchRideResponseDto toSearchDto(RideInfo rideInfo);
 
     List<SearchRideResponseDto> toDto(List<RideInfo> rideinfos);
+
+    @Mapping(source = "passenger.name", target = "name")
+    GetBookingRequestsDto toBookingDto(Booking booking);
+
+    List<GetBookingRequestsDto> toBookingRequestDto(List<Booking> bookings);
 
 }

@@ -16,12 +16,9 @@ import java.util.UUID;
 public class NotificationProducer {
 
     Properties properties = new Properties();
-    String topic;
     KafkaProducer<UUID, RideNotificationEvent> producer;
 
-    public NotificationProducer(@Value("${kafka.notification.topic}") String topic) {
-
-        this.topic = topic;
+    public NotificationProducer() {
 
         properties.setProperty("bootstrap.servers", "[::1]:9092");
         properties.setProperty("key.serializer", UUIDSerializer.class.getName());
@@ -31,13 +28,11 @@ public class NotificationProducer {
 
     }
 
-    public void sendNotification(RideNotificationEvent notification) {
+    public void sendNotification(String topic, RideNotificationEvent notification) {
 
         ProducerRecord<UUID, RideNotificationEvent> record = new ProducerRecord<>(topic, notification.getRideId(), notification);
 
         producer.send(record);
-
-        producer.close();
 
     }
 

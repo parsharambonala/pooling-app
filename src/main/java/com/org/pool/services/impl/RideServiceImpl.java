@@ -6,10 +6,12 @@ import com.org.pool.domain.dtos.Coordinates;
 import com.org.pool.domain.dtos.RideInfo;
 import com.org.pool.domain.dtos.RouteInfo;
 import com.org.pool.domain.entities.*;
+import com.org.pool.notification.entities.BookingUpdateNotificationEvent;
 import com.org.pool.notification.entities.RideCancellationNotificationEvent;
 import com.org.pool.notification.entities.RideNotificationEvent;
 import com.org.pool.notification.service.NotificationConsumer;
 import com.org.pool.notification.service.NotificationProducer;
+import com.org.pool.repositories.BookingRepository;
 import com.org.pool.repositories.EmployeeRepository;
 import com.org.pool.repositories.RideRepository;
 import com.org.pool.repositories.VehicleRepository;
@@ -36,6 +38,7 @@ public class RideServiceImpl implements RideService {
     private final RideRepository rideRepository;
     private final EmployeeRepository employeeRepository;
     private final VehicleRepository vehicleRepository;
+    private final BookingRepository bookingRepository;
     private final OlaMapsService olaMapsClient;
     private final RideUtil rideUtil;
     private final NotificationProducer notificationProducer;
@@ -116,9 +119,8 @@ public class RideServiceImpl implements RideService {
     public void deleteRide(UUID rideId, String mailId) throws BadRequestException {
 
         Ride ride =  getRide(rideId);
-        Employee driver = employeeRepository.findByMailId(mailId);
 
-        if(!ride.getDriver().getName().equals(driver.getName())){
+        if(!ride.getDriver().getMailId().equals(mailId)){
             throw new BadRequestException("Unauthorized to delete");
         }
 
@@ -139,9 +141,67 @@ public class RideServiceImpl implements RideService {
         rideNotificationEvent.setRideId(ride.getId());
         rideNotificationEvent.setDriverId(ride.getDriver().getEmployeeId());
         rideNotificationEvent.setAffectedPassengerIds(affectedPassengers);
-        notificationProducer.sendNotification(rideNotificationEvent);
+        notificationProducer.sendNotification("cancel-ride", rideNotificationEvent);
 
         ride.setStatus(RideStatusEnum.CANCELLED);
 
     }
+
+    @Override
+    public List<Booking> getBookingRequests(UUID rideId, String mailId) throws IllegalAccessException {
+        Ride ride = getRide(rideId);
+
+        if(!ride.getDriver().getMailId().equals(mailId)) {
+            throw new IllegalAccessException("Not authorized to access the bookings");
+        }
+
+        return ride.getBookings();
+
+    }
+
+    @Override
+    public void changeBookingStatus(UUID rideId, UUID bookingId, String mailId, BookingStatusEnum status) throws IllegalAccessException, BadRequestException {
+
+        Ride ride = getRide(rideId);
+
+        if(!ride.getDriver().getMailId().equals(mailId)) {
+            throw new IllegalAccessException("Not authorized to access the bookings");
+        }
+
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(()->
+                new EntityNotFoundException("Booking not found"));
+
+        if(!booking.getRide().equals(ride)) {
+            throw new BadRequestException("Booking doesn't belong to this ride");
+        }
+
+        if(!isValidTransition(booking.getStatus(), status)) {
+            throw new BadRequestException("Invalid status Transition");
+        }
+
+        booking.setStatus(status);
+        bookingRepository.save(booking);
+
+        BookingUpdateNotificationEvent updateNotificationEvent = new BookingUpdateNotificationEvent();
+
+        updateNotificationEvent.setRideId(rideId);
+        updateNotificationEvent.setDriverId(ride.getDriver().getEmployeeId());
+        updateNotificationEvent.setDepartureTime(ride.getDepartureTime());
+        updateNotificationEvent.setBookingId(bookingId);
+        updateNotificationEvent.setPassengerId(booking.getPassenger().getEmployeeId());
+        updateNotificationEvent.setStatus(status);
+
+        notificationProducer.sendNotification("update-booking", updateNotificationEvent);
+
+
+    }
+
+
+    public boolean isValidTransition(BookingStatusEnum currentStatus, BookingStatusEnum desiredStatus) {
+
+        return (currentStatus == BookingStatusEnum.PENDING && desiredStatus == BookingStatusEnum.ACCEPTED) ||
+                currentStatus == BookingStatusEnum.PENDING && desiredStatus == BookingStatusEnum.REJECTED;
+
+    }
+
 }
