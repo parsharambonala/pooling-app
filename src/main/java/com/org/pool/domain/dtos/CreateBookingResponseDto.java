@@ -16,7 +16,7 @@ public class CreateBookingResponseDto {
     private UUID rideId;
     private Integer oneTimeCode;
     private Double fare;
-    private String pickupAddress;
+    private String location;
     private Double distanceFromDestination;
     private BookingStatusEnum status;
 

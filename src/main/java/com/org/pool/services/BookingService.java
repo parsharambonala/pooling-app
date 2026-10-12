@@ -9,6 +9,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public interface BookingService {
-    Booking createBooking(Ride ride, Employee passenger, String pickupAddress, LocalDateTime pickupTime);
+    Booking createBooking(Ride ride, Employee passenger, String location, LocalDateTime pickupTime);
     void deleteBooking(UUID bookingId);
 }

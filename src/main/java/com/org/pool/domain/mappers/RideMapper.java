@@ -17,7 +17,14 @@ public interface RideMapper {
 
     @Mapping(source = "driver.name", target = "driverName")
     @Mapping(source = "vehicle.vehicleModel", target = "vehicleName")
+    @Mapping(target = "location", expression = "java(mapLocation(ride))")
     CreateRideResponseDto toDto(Ride ride);
+
+    default String mapLocation(Ride ride) {
+        return ride.getStartAddress() != null ?
+                ride.getStartAddress() :
+                ride.getDestinationAddress();
+    }
 
     SearchRideRequest fromDto(SearchRideRequestDto dto);
 

@@ -1,5 +1,6 @@
 package com.org.pool.domain.dtos;
 
+import com.org.pool.domain.entities.RideDirectionEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,8 @@ public class CreateRideResponseDto {
     private String driverName;
     private String vehicleName;
     private String status;
+    private RideDirectionEnum rideDirection;
     private LocalDateTime departureTime;
-    private String startAddress;
+    private String location;
 
 }

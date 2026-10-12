@@ -13,7 +13,7 @@ import java.util.UUID;
 public class GetBookingRequestsDto {
     private UUID id;
     private String name;
-    private String pickupAddress;
+    private String location;
     private Integer oneTimeCode;
     private Double distanceFromDestination;
     private Double fare;

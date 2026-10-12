@@ -1,7 +1,10 @@
 package com.org.pool.services.impl;
 
 import com.org.pool.domain.dtos.Coordinates;
+import com.org.pool.domain.entities.RideDirectionEnum;
 import com.org.pool.services.OlaMapsService;
+import com.org.pool.util.RideUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -16,7 +19,8 @@ public class OlaMapsClient implements OlaMapsService {
     private final RestClient restClient;
     private final String apiKey;
 
-    private final Coordinates officeCoordinates = new Coordinates(17.4355, 78.3851);;
+
+    private final Coordinates officeCoordinates = new Coordinates(17.4355, 78.3851);
 
     public OlaMapsClient(@Value("${olamaps.base-url}") String baseUrl, @Value("${olamaps.api-key}") String apiKey) {
         restClient = RestClient.builder()
@@ -50,10 +54,18 @@ public class OlaMapsClient implements OlaMapsService {
     }
 
     @Override
-    public JsonNode getRoutes(Coordinates origin, Optional<Coordinates> leg ,LocalDateTime departureTime) {
+    public JsonNode getRoutes(Coordinates employeeCoordinates, Optional<Coordinates> leg, LocalDateTime departureTime, RideDirectionEnum rideDirection) {
 
-        String originCoordinates = origin.latitude() + "," + origin.longitude();
-        String destinationCoordinates = officeCoordinates.latitude() + "," + officeCoordinates.longitude();
+        String originCoordinates;
+        String destinationCoordinates;
+
+        if (rideDirection == RideDirectionEnum.TO_OFFICE) {
+            originCoordinates = employeeCoordinates.latitude() + "," + employeeCoordinates.longitude();
+            destinationCoordinates = officeCoordinates.latitude() + "," + officeCoordinates.longitude();
+        } else {
+            originCoordinates = officeCoordinates.latitude() + "," + officeCoordinates.longitude();
+            destinationCoordinates = employeeCoordinates.latitude() + "," + employeeCoordinates.longitude();
+        }
 
         JsonNode response = restClient.post()
                 .uri(uriBuilder ->

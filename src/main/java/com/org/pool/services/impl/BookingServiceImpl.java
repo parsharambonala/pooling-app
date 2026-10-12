@@ -30,10 +30,10 @@ public class BookingServiceImpl implements BookingService {
     private final RideUtil rideUtil;
 
     @Override
-    public Booking createBooking(Ride ride, Employee passenger, String pickupAddress, LocalDateTime pickupTime) {
+    public Booking createBooking(Ride ride, Employee passenger, String location, LocalDateTime pickupTime) {
 
-        Coordinates pickupAddressCoordinates = olaMapsClient.getCode(pickupAddress);
-        RouteInfo routeInfo = rideUtil.getRouteInfo(olaMapsClient.getRoutes(pickupAddressCoordinates, java.util.Optional.empty(), pickupTime));
+        Coordinates passengerCoordinates = olaMapsClient.getCode(location);
+        RouteInfo routeInfo = rideUtil.getRouteInfo(olaMapsClient.getRoutes(passengerCoordinates, java.util.Optional.empty(), pickupTime, ride.getRideDirection()));
 
         Double fareCalculated = rideUtil.calculateFare(routeInfo, ride.getVehicle().getVehicleType());
 
@@ -42,7 +42,7 @@ public class BookingServiceImpl implements BookingService {
                 .oneTimeCode(new Random().nextInt(1000,9999))
                 .fare(fareCalculated)
                 .distanceFromDestination(routeInfo.distanceMeters())
-                .pickupAddress(pickupAddress)
+                .location(location)
                 .passenger(passenger)
                 .status(BookingStatusEnum.PENDING)
                 .build();

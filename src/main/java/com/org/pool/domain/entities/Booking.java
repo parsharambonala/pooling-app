@@ -43,8 +43,8 @@ public class Booking {
     @Column(name = "distance_from_destination")
     private Double distanceFromDestination;
 
-    @Column(name = "pickup_address", nullable = false)
-    private String pickupAddress;
+    @Column(name = "location", nullable = false)
+    private String location;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "passenger_id", nullable = false)

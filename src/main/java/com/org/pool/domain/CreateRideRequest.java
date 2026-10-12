@@ -1,5 +1,6 @@
 package com.org.pool.domain;
 
+import com.org.pool.domain.entities.RideDirectionEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,8 @@ import java.util.UUID;
 public class CreateRideRequest {
 
     private UUID vehicleId;
+    private RideDirectionEnum rideDirection;
     private LocalDateTime departureTime;
-    private String startAddress;
+    private String location;
 
 }

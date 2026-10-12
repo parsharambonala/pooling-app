@@ -1,5 +1,6 @@
 package com.org.pool.domain.dtos;
 
+import com.org.pool.domain.entities.RideDirectionEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -17,11 +18,14 @@ public class CreateRideRequestDto {
     @NotNull(message = "vehicle must be provided")
     private UUID vehicleId;
 
+    @NotNull(message = "ride direction must be provided")
+    private RideDirectionEnum rideDirection;
+
     @NotNull(message = "Departure time must be provided")
     private LocalDateTime departureTime;
 
-    @NotBlank(message = "Start Address must be provided")
-    private String startAddress;
+    @NotBlank(message = "Location must be provided")
+    private String location;
 
 
 }

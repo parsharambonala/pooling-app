@@ -20,5 +20,6 @@ public class SearchRideResponseDto {
     private String vehicleModel;
     private LocalDateTime departureTime;
     private LocalDateTime pickupTime;
+    private LocalDateTime reachTime;
 
 }

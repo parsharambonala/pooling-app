@@ -6,7 +6,8 @@ import java.time.LocalDateTime;
 
 public record RideInfo(
         Ride ride,
-        LocalDateTime arrivalTime
+        LocalDateTime arrivalTime,
+        LocalDateTime reachTime
 ){
 
 }

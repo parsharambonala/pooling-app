@@ -1,5 +1,6 @@
 package com.org.pool.domain;
 
+import com.org.pool.domain.entities.RideDirectionEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class SearchRideRequest {
 
-    private String pickupAddress;
-    private LocalDateTime departureTime;
+    private RideDirectionEnum rideDirection;
+    private String location;
+    private LocalDateTime pickupTime;
 
 }

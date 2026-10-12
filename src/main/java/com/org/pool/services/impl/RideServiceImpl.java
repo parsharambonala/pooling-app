@@ -8,8 +8,6 @@ import com.org.pool.domain.dtos.RouteInfo;
 import com.org.pool.domain.entities.*;
 import com.org.pool.notification.entities.BookingUpdateNotificationEvent;
 import com.org.pool.notification.entities.RideCancellationNotificationEvent;
-import com.org.pool.notification.entities.RideNotificationEvent;
-import com.org.pool.notification.service.NotificationConsumer;
 import com.org.pool.notification.service.NotificationProducer;
 import com.org.pool.repositories.BookingRepository;
 import com.org.pool.repositories.EmployeeRepository;
@@ -51,14 +49,24 @@ public class RideServiceImpl implements RideService {
         Employee employee = employeeRepository.findByMailId(mailId);
         Vehicle vehicle = vehicleRepository.findById(createRideRequest.getVehicleId()).orElseThrow(() ->  new EntityNotFoundException("Vehicle Not Found"));
 
-        Ride rideToCreate = Ride.builder()
+        Ride.RideBuilder rideBuilder = Ride.builder();
+
+        rideBuilder
                 .driver(employee)
                 .vehicle(vehicle)
                 .status(RideStatusEnum.SCHEDULED)
-                .departureTime(createRideRequest.getDepartureTime())
-                .startAddress(createRideRequest.getStartAddress())
-                .build();
+                .rideDirection(createRideRequest.getRideDirection())
+                .departureTime(createRideRequest.getDepartureTime());
 
+        if(createRideRequest.getRideDirection() == RideDirectionEnum.TO_OFFICE) {
+            rideBuilder.startAddress(createRideRequest.getLocation())
+                    .destinationAddress(null);
+        }else{
+            rideBuilder.startAddress(null)
+                    .destinationAddress(createRideRequest.getLocation());
+        }
+
+        Ride rideToCreate = rideBuilder.build();
         return rideRepository.save(rideToCreate);
 
     }
@@ -70,9 +78,9 @@ public class RideServiceImpl implements RideService {
     @Override
     public List<RideInfo> searchRides(SearchRideRequest request) {
 
-        String pickupAddress = request.getPickupAddress();
-        LocalDateTime passengerPickupTime = request.getDepartureTime();
-        Coordinates passengerCoordinates = olaMapsClient.getCode(pickupAddress);
+        String location = request.getLocation();
+        LocalDateTime passengerPickupTime = request.getPickupTime();
+        Coordinates passengerCoordinates = olaMapsClient.getCode(location);
         List<Ride> relevantRides = getAllRides().stream()
                .filter(ride -> ride.getDepartureTime().toLocalDate().equals(passengerPickupTime.toLocalDate())
                        && ride.getStatus() == RideStatusEnum.SCHEDULED && ride.getBookings().size() < ride.getVehicle().getSeatCount())
@@ -82,24 +90,43 @@ public class RideServiceImpl implements RideService {
 
         for(Ride ride : relevantRides) {
 
-            Coordinates driverCoordinates = olaMapsClient.getCode(ride.getStartAddress());
-            RouteInfo toOffice = rideUtil.getRouteInfo(olaMapsClient.getRoutes(driverCoordinates, Optional.empty(), ride.getDepartureTime()));
-            JsonNode withPassengerFullInfo = olaMapsClient.getRoutes(driverCoordinates, Optional.ofNullable(passengerCoordinates), ride.getDepartureTime());
+            Coordinates driverCoordinates = olaMapsClient.getCode(ride.getRideDirection() == RideDirectionEnum.TO_OFFICE
+            ? ride.getStartAddress() : ride.getDestinationAddress());
+            RouteInfo withoutPassenger = rideUtil.getRouteInfo(olaMapsClient.getRoutes(driverCoordinates, Optional.empty(), ride.getDepartureTime(), ride.getRideDirection()));
+            JsonNode withPassengerFullInfo = olaMapsClient.getRoutes(driverCoordinates, Optional.ofNullable(passengerCoordinates), ride.getDepartureTime(), ride.getRideDirection());
             RouteInfo withPassenger = rideUtil.getRouteInfo(withPassengerFullInfo);
 
-            Double distanceDiff = withPassenger.distanceMeters() - toOffice.distanceMeters();
-            Double durationDiff = withPassenger.durationSeconds() - toOffice.durationSeconds();
+            Double distanceDiff = withPassenger.distanceMeters() - withoutPassenger.distanceMeters();
+            Double durationDiff = withPassenger.durationSeconds() - withoutPassenger.durationSeconds();
 
-            if( distanceDiff.compareTo(5000d) < 0 && durationDiff.compareTo(600d) < 0){
+            if( distanceDiff.compareTo(3000d) < 0 && durationDiff.compareTo(600d) < 0){
+
                 Double passengerLegDuration = withPassengerFullInfo.path("legs").get(0).path("duration").asDouble();
+                Double officeLegDuration = withPassengerFullInfo.path("legs").get(1).path("duration").asDouble();
 
                 LocalDateTime arrivalTime = ride.getDepartureTime().plusSeconds(passengerLegDuration.longValue());
+                LocalDateTime reachTime = arrivalTime.plusSeconds(officeLegDuration.longValue());
 
-                if(!arrivalTime.isBefore(passengerPickupTime.minusMinutes(10)) &&
-                !arrivalTime.isAfter(passengerPickupTime.plusMinutes(10))){
-                    ridesToReturn.add(new RideInfo(ride, arrivalTime));
+                if(request.getRideDirection() == RideDirectionEnum.FROM_OFFICE) {
+
+                    if(!passengerPickupTime.isAfter(ride.getDepartureTime().plusMinutes(10)) &&
+                            !passengerPickupTime.isBefore(ride.getDepartureTime().minusMinutes(10))){
+
+                        ridesToReturn.add(new RideInfo(ride, ride.getDepartureTime(), arrivalTime));
+
+                    }
+
+                }else {
+
+                    if(!arrivalTime.isBefore(passengerPickupTime.minusMinutes(10)) &&
+                            !arrivalTime.isAfter(passengerPickupTime.plusMinutes(10))){
+                        ridesToReturn.add(new RideInfo(ride, arrivalTime, reachTime));
+                    }
                 }
+
+
             }
+
 
         }
 

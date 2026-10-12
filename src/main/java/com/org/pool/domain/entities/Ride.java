@@ -37,11 +37,18 @@ public class Ride {
     @Enumerated(EnumType.STRING)
     private RideStatusEnum status;
 
+    @Column(name = "ride_direction")
+    @Enumerated(EnumType.STRING)
+    private RideDirectionEnum rideDirection;
+
     @Column(name = "departure_time")
     private LocalDateTime departureTime;
 
     @Column(name = "start_address")
     private String startAddress;
+
+    @Column(name = "destination_address")
+    private String destinationAddress;
 
     @Builder.Default
     @OneToMany(mappedBy = "ride")

@@ -51,7 +51,7 @@ public class BookingController {
             throw new UnsupportedOperationException("No seats available");
         }
 
-        Booking booking = bookingService.createBooking(ride, passenger, requestDto.getPickupAddress(), requestDto.getPickupTime());
+        Booking booking = bookingService.createBooking(ride, passenger, requestDto.getLocation(), requestDto.getPickupTime());
         return new ResponseEntity<>(bookingMapper.toDto(booking), HttpStatus.CREATED);
 
     }

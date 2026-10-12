@@ -12,6 +12,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateBookingRequestDto {
-    private String pickupAddress;
+    private String location;
     private LocalDateTime pickupTime;
 }
