@@ -3,10 +3,7 @@ package com.org.pool.controllers;
 
 import com.org.pool.domain.dtos.CreateBookingRequestDto;
 import com.org.pool.domain.dtos.CreateBookingResponseDto;
-import com.org.pool.domain.entities.Booking;
-import com.org.pool.domain.entities.Employee;
-import com.org.pool.domain.entities.Ride;
-import com.org.pool.domain.entities.RideStatusEnum;
+import com.org.pool.domain.entities.*;
 import com.org.pool.domain.mappers.BookingMapper;
 import com.org.pool.repositories.BookingRepository;
 import com.org.pool.repositories.EmployeeRepository;
@@ -47,7 +44,7 @@ public class BookingController {
             throw new UnsupportedOperationException("Ride is not scheduled");
         }
 
-        if( ride.getBookings().size() == ride.getVehicle().getSeatCount()) {
+        if( ride.getBookings().stream().filter(booking -> booking.getStatus().equals(BookingStatusEnum.ACCEPTED)).toList().size() == ride.getVehicle().getSeatCount()) {
             throw new UnsupportedOperationException("No seats available");
         }
 
